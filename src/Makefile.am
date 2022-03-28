@@ -28,7 +28,7 @@ GIT_CMD = @GIT_CMD@
 EXTRA_LIBS = $(HDF5_LIBS)
 
 # Build the library
-lib_LTLIBRARIES = libswiftunits.la
+lib_LTLIBRARIES = libswift_units.la
 
 # List required headers
 include_HEADERS = swift_units.h
@@ -38,9 +38,9 @@ noinst_HEADERS = parser.h error.h common_io.h tools.h
 AM_SOURCES = swift_units.c common_io.c parser.c tools.c
 
 # Sources and flags for the library
-libswiftunits_la_SOURCES = $(AM_SOURCES)
-libswiftunits_la_CFLAGS = $(AM_CFLAGS)
-libswiftunits_la_LDFLAGS = $(AM_LDFLAGS) $(EXTRA_LIBS) -version-info 0:0:0
+libswift_units_la_SOURCES = $(AM_SOURCES)
+libswift_units_la_CFLAGS = $(AM_CFLAGS)
+libswift_units_la_LDFLAGS = $(AM_LDFLAGS) $(EXTRA_LIBS) -version-info 0:0:0
 
 # Versioning. If any sources change then update the version_string.h file with
 # the current git revision and package version.

@@ -22,7 +22,7 @@
 #include <hdf5.h>
 
 /* Config parameters. */
-#include "../config.h"
+//#include "../config.h"
 
 /**
  * @brief The unit system used internally.

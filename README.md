@@ -60,6 +60,17 @@ base units expressed in the CGS system:
   * U_C_in_cgs: size of the current unit
   * U_T_in_cgs: size of the temperature init
 
+There are also two built in, standard unit systems. To create a CGS unit system:
+```
+struct unit_system us_cgs;
+units_init_cgs(&us_cgs);
+```
+and to create an SI unit system:
+```
+struct unit_system us_si;
+units_init_si(&us_si);
+```
+
 ### Specifying units and defining new units
 
 Once the base unit system has been defined, derived units can be specified
