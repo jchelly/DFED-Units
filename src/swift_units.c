@@ -29,7 +29,7 @@
 #include <string.h>
 
 /* This object's header. */
-#include "units.h"
+#include "swift_units.h"
 
 /* Includes. */
 #include "error.h"

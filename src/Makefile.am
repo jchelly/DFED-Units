@@ -31,11 +31,11 @@ EXTRA_LIBS = $(HDF5_LIBS)
 lib_LTLIBRARIES = libswiftunits.la
 
 # List required headers
-include_HEADERS = units.h
-noinst_headers = parser.h error.h common_io.h tools.h
+include_HEADERS = swift_units.h
+noinst_HEADERS = parser.h error.h common_io.h tools.h
 
 # Common source files
-AM_SOURCES = units.c common_io.c parser.c tools.c
+AM_SOURCES = swift_units.c common_io.c parser.c tools.c
 
 # Sources and flags for the library
 libswiftunits_la_SOURCES = $(AM_SOURCES)

@@ -19,7 +19,7 @@
 AC_INIT([SWIFTUnits],[0.0.1],[])
 
 AC_COPYRIGHT
-AC_CONFIG_SRCDIR([src/units.c])
+AC_CONFIG_SRCDIR([src/swift_units.c])
 AC_CONFIG_AUX_DIR([./conf/])
 AM_INIT_AUTOMAKE([subdir-objects])
 
