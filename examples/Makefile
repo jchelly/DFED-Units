@@ -1,6 +1,9 @@
 .PHONY: all
 all:	cgs_units
 
+clean:
+	\rm -f cgs_units
+
 # Location where the library was installed
 SWIFT_UNITS_DIR=$(HOME)/swift_units
 
