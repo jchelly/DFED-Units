@@ -165,16 +165,20 @@ double units_conversion_factor(const struct unit_system* from,
 
 void units_print(const struct unit_system* us);
 
-/* Define units from .yml file */
+/* Read and write unit systems */
 void units_init_from_yml(struct unit_system* us, char *filename,
                          const char* category);
 
-/* Write unit system to HDF5 */
 void units_write_hdf5(hid_t h_file, const struct unit_system* us,
                       const char* groupName);
 
-/* Read unit system from HDF5 */
 void units_init_from_hdf5(hid_t h_file, struct unit_system* ic_units,
                           const char *groupName);
+
+/* Write unit information associated with a dataset */
+void units_add_to_hdf5_dataset_cosmological(hid_t h_data, const struct unit_system *us,
+                                            enum unit_conversion_factor unit,
+                                            double scale_factor_exponent, double a);
+#define units_add_to_hdf5_dataset(h_data, us, unit) units_add_to_hdf5_dataset_cosmological(h_data, us, unit, 0.0, 1.0)
 
 #endif /* SWIFT_UNITS_H */
