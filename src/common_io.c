@@ -25,6 +25,7 @@
 #include "common_io.h"
 
 /* Local includes. */
+#include "units.h"
 #include "error.h"
 #include "version.h"
 

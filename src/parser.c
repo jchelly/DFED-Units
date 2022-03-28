@@ -33,9 +33,8 @@
 /* Local headers. */
 #include "common_io.h"
 #include "error.h"
-#include "restart.h"
-#include "tools.h"
 #include "version.h"
+#include "tools.h"
 
 #define PARSER_COMMENT_STRING "#"
 #define PARSER_COMMENT_CHAR '#'
@@ -1264,15 +1263,6 @@ void parser_write_params_to_file(const struct swift_params *params,
   /* Start of file identifier in YAML. */
   fprintf(file, "%s\n\n", PARSER_START_OF_FILE);
 
-  if (write_used)
-    fprintf(file, "# SWIFT used parameter file\n");
-  else
-    fprintf(file, "# SWIFT unused parameter file\n");
-  fprintf(file, "# Code version: %s\n", package_version());
-  fprintf(file, "# git revision: %s\n", git_revision());
-  fprintf(file, "# git branch: %s\n", git_branch());
-  fprintf(file, "# git date: %s\n", git_date());
-
   /* Flags to track which parameters are written. */
   int *written = (int *)calloc(params->paramCount, sizeof(int));
   int nwritten = 0;
@@ -1353,29 +1343,6 @@ void parser_write_params_to_hdf5(const struct swift_params *params, hid_t grp,
   }
 }
 #endif
-
-/**
- * @brief Write a swift_params struct to the given FILE as a stream of bytes.
- *
- * @param params the struct
- * @param stream the file stream
- */
-void parser_struct_dump(const struct swift_params *params, FILE *stream) {
-  restart_write_blocks((void *)params, sizeof(struct swift_params), 1, stream,
-                       "parameters", "parameters");
-}
-
-/**
- * @brief Restore a swift_params struct from the given FILE as a stream of
- * bytes.
- *
- * @param params the struct
- * @param stream the file stream
- */
-void parser_struct_restore(const struct swift_params *params, FILE *stream) {
-  restart_read_blocks((void *)params, sizeof(struct swift_params), 1, stream,
-                      NULL, "parameters");
-}
 
 /**
  * @brief Return the index of a given section name in a swift_params struct.
