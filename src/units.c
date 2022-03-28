@@ -32,9 +32,7 @@
 #include "units.h"
 
 /* Includes. */
-#include "adiabatic_index.h"
 #include "error.h"
-#include "restart.h"
 
 /**
  * @brief Initialises the unit_system structure with CGS system
@@ -324,17 +322,17 @@ void units_get_base_unit_exponents_array(float baseUnitsExp[5],
       baseUnitsExp[UNIT_TIME] = -3.f;
       break;
 
-    case UNIT_CONV_ENTROPY:
-      baseUnitsExp[UNIT_MASS] = 2.f - hydro_gamma;
-      baseUnitsExp[UNIT_LENGTH] = 3.f * hydro_gamma - 1.f;
-      baseUnitsExp[UNIT_TIME] = -2.f;
-      break;
+    /* case UNIT_CONV_ENTROPY: */
+    /*   baseUnitsExp[UNIT_MASS] = 2.f - hydro_gamma; */
+    /*   baseUnitsExp[UNIT_LENGTH] = 3.f * hydro_gamma - 1.f; */
+    /*   baseUnitsExp[UNIT_TIME] = -2.f; */
+    /*   break; */
 
-    case UNIT_CONV_ENTROPY_PER_UNIT_MASS:
-      baseUnitsExp[UNIT_MASS] = 1.f - hydro_gamma;
-      baseUnitsExp[UNIT_LENGTH] = 3.f * hydro_gamma - 1.f;
-      baseUnitsExp[UNIT_TIME] = -2.f;
-      break;
+    /* case UNIT_CONV_ENTROPY_PER_UNIT_MASS: */
+    /*   baseUnitsExp[UNIT_MASS] = 1.f - hydro_gamma; */
+    /*   baseUnitsExp[UNIT_LENGTH] = 3.f * hydro_gamma - 1.f; */
+    /*   baseUnitsExp[UNIT_TIME] = -2.f; */
+    /*   break; */
 
     case UNIT_CONV_PHYSICAL_ENTROPY_PER_UNIT_MASS:
       baseUnitsExp[UNIT_LENGTH] = 2.f;
@@ -740,24 +738,3 @@ void units_print(const struct unit_system* us) {
   message("\tUnit Temperature: %g", us->UnitTemperature_in_cgs);
 }
 
-/**
- * @brief Write a units struct to the given FILE as a stream of bytes.
- *
- * @param us the units
- * @param stream the file stream
- */
-void units_struct_dump(const struct unit_system* us, FILE* stream) {
-  restart_write_blocks((void*)us, sizeof(struct unit_system), 1, stream,
-                       "units", "units");
-}
-
-/**
- * @brief Restore a units struct from the given FILE as a stream of bytes.
- *
- * @param us the units
- * @param stream the file stream
- */
-void units_struct_restore(const struct unit_system* us, FILE* stream) {
-  restart_read_blocks((void*)us, sizeof(struct unit_system), 1, stream, NULL,
-                      "units");
-}

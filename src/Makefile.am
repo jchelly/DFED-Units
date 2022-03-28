@@ -31,7 +31,7 @@ EXTRA_LIBS = $(HDF5_LIBS)
 lib_LTLIBRARIES = libswiftunits.la
 
 # List required headers
-include_HEADERS = units.h
+include_HEADERS = units.h parser.h
 
 # Common source files
 AM_SOURCES = units.c
