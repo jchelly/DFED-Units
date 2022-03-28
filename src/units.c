@@ -33,6 +33,7 @@
 
 /* Includes. */
 #include "error.h"
+#include "parser.h"
 
 /**
  * @brief Initialises the unit_system structure with CGS system
@@ -738,3 +739,24 @@ void units_print(const struct unit_system* us) {
   message("\tUnit Temperature: %g", us->UnitTemperature_in_cgs);
 }
 
+
+/**
+ * @brief Construct a units system from a .yml file
+ *
+ * @param us The #unit_system we are initializing
+ * @param filename The file to read
+ * @param category Which section of the .yml file to read from
+ *
+ * @return The conversion factor
+ */
+void units_init_from_yml(struct unit_system* us, char *filename,
+                         const char* category) {
+  
+  /* Read the .yml file */
+  struct swift_params params;
+  parser_init(filename, &params);
+  parser_read_file(filename, &params);
+
+  /* Set up the unit system */
+  units_init_from_params(us, &params, category);
+}
