@@ -19,6 +19,8 @@
 #ifndef SWIFT_UNITS_H
 #define SWIFT_UNITS_H
 
+#include <hdf5.h>
+
 /* Config parameters. */
 #include "../config.h"
 
@@ -163,12 +165,16 @@ double units_conversion_factor(const struct unit_system* from,
 
 void units_print(const struct unit_system* us);
 
-/* Dump/restore. */
-void units_struct_dump(const struct unit_system* us, FILE* stream);
-void units_struct_restore(const struct unit_system* us, FILE* stream);
-
 /* Define units from .yml file */
 void units_init_from_yml(struct unit_system* us, char *filename,
                          const char* category);
+
+/* Write unit system to HDF5 */
+void units_write_hdf5(hid_t h_file, const struct unit_system* us,
+                      const char* groupName);
+
+/* Read unit system from HDF5 */
+void units_init_from_hdf5(hid_t h_file, struct unit_system* ic_units,
+                          const char *groupName);
 
 #endif /* SWIFT_UNITS_H */

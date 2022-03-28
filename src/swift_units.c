@@ -34,6 +34,7 @@
 /* Includes. */
 #include "error.h"
 #include "parser.h"
+#include "common_io.h"
 
 /**
  * @brief Initialises the unit_system structure with CGS system
@@ -760,3 +761,60 @@ void units_init_from_yml(struct unit_system* us, char *filename,
   /* Set up the unit system */
   units_init_from_params(us, &params, category);
 }
+
+/**
+ * @brief Reads the Unit System from an IC file.
+ *
+ * @param h_file The (opened) HDF5 file from which to read.
+ * @param ic_units The unit_system to fill.
+ * @param groupName The name of the HDF5 group to write to
+ *
+ */
+void units_init_from_hdf5(hid_t h_file, struct unit_system* ic_units,
+                          const char *groupName) {
+
+
+  hid_t h_grp = H5Gopen(h_file, groupName, H5P_DEFAULT);
+  if (h_grp < 0) error("Error while reading unit system group");
+
+  io_read_attribute(h_grp, "Unit length in cgs (U_L)", DOUBLE,
+                    &ic_units->UnitLength_in_cgs);
+  io_read_attribute(h_grp, "Unit mass in cgs (U_M)", DOUBLE,
+                    &ic_units->UnitMass_in_cgs);
+  io_read_attribute(h_grp, "Unit time in cgs (U_t)", DOUBLE,
+                    &ic_units->UnitTime_in_cgs);
+  io_read_attribute(h_grp, "Unit current in cgs (U_I)", DOUBLE,
+                    &ic_units->UnitCurrent_in_cgs);
+  io_read_attribute(h_grp, "Unit temperature in cgs (U_T)", DOUBLE,
+                    &ic_units->UnitTemperature_in_cgs);
+
+  /* Clean up */
+  H5Gclose(h_grp);
+}
+
+/**
+ * @brief Writes the current Unit System
+ * @param h_file The (opened) HDF5 file in which to write
+ * @param us The unit_system to dump
+ * @param groupName The name of the HDF5 group to write to
+ */
+void units_write_hdf5(hid_t h_file, const struct unit_system* us,
+                      const char* groupName) {
+
+  const hid_t h_grpunit = H5Gcreate1(h_file, groupName, 0);
+  if (h_grpunit < 0) error("Error while creating Unit System group");
+
+  io_write_attribute_d(h_grpunit, "Unit mass in cgs (U_M)",
+                       units_get_base_unit(us, UNIT_MASS));
+  io_write_attribute_d(h_grpunit, "Unit length in cgs (U_L)",
+                       units_get_base_unit(us, UNIT_LENGTH));
+  io_write_attribute_d(h_grpunit, "Unit time in cgs (U_t)",
+                       units_get_base_unit(us, UNIT_TIME));
+  io_write_attribute_d(h_grpunit, "Unit current in cgs (U_I)",
+                       units_get_base_unit(us, UNIT_CURRENT));
+  io_write_attribute_d(h_grpunit, "Unit temperature in cgs (U_T)",
+                       units_get_base_unit(us, UNIT_TEMPERATURE));
+
+  H5Gclose(h_grpunit);
+}
+
