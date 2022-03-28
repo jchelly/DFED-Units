@@ -85,3 +85,7 @@ m4/lt~obsolete.m4
 
 # vscode
 *.json
+
+conf/
+config.log
+src/version.c
