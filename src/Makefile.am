@@ -27,14 +27,14 @@ GIT_CMD = @GIT_CMD@
 # Additional dependencies for shared libraries.
 EXTRA_LIBS = $(HDF5_LIBS)
 
-# Build the libswiftsim library and a convenience library just for the gravity tasks
+# Build the library
 lib_LTLIBRARIES = libswiftunits.la
 
 # List required headers
-include_HEADERS = units.h parser.h
+include_HEADERS = units.h parser.h error.h common_io.h
 
 # Common source files
-AM_SOURCES = units.c
+AM_SOURCES = units.c common_io.c
 
 # Sources and flags for the library
 libswiftunits_la_SOURCES = $(AM_SOURCES)
