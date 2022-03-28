@@ -34,7 +34,7 @@ lib_LTLIBRARIES = libswiftunits.la
 include_HEADERS = units.h parser.h error.h common_io.h
 
 # Common source files
-AM_SOURCES = units.c common_io.c
+AM_SOURCES = units.c common_io.c parser.c
 
 # Sources and flags for the library
 libswiftunits_la_SOURCES = $(AM_SOURCES)
