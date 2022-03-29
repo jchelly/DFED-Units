@@ -4,6 +4,16 @@ This is a C library extracted from the [SWIFT n-body simulation code]
 (www.swiftsim.com) which can be used to store, operate on and read/write
 unit information in numerical simulations.
 
+It is assumed that the simulation code uses a consistent set of units
+internally such that, for example, velocity units are length units divided
+by time units. The library provides facilities to describe the systems of
+units used internally and in input or output files and to convert between
+systems.
+
+Unit information is NOT carried along with data arrays within the simulation
+code. This avoids any performance impact and minimizes the code changes which
+are necessary to make use of the library.
+
 ## Compilation
 
 This package requires a C compiler and the HDF5 library. Building from
@@ -39,6 +49,10 @@ and adding the following to your linker flags
 ```
 -L<installation_dir>/lib/ -lswift_units
 ```
+
+The examples directory contains a Makefile which compiles a small program which
+calls the library. It may be necessary to edit the line which sets
+SWIFT_UNITS_DIR to specify the library installation location.
 
 ### Creating a unit system
 
@@ -85,6 +99,9 @@ To add a new unit:
   * Add a new entry to `enum unit_conversion_factor` in swift_units.h
   * Modify units_get_base_unit_exponents_array() in swift_units.c to return
     the base units exponents for the new unit
+
+A possible enhancement to the library would be to allow definition of new
+units on the fly and storage of unit definitions in output files.
 
 ### Converting between unit systems
 
