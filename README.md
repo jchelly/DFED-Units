@@ -164,6 +164,8 @@ metadata will be added to.
 
 ## Examples
 
+### Writing a dataset with unit information
+
 The program in examples/cosmology.c shows how to call the library to do the
 following:
 
@@ -177,5 +179,20 @@ The program can be compiled by running make in the examples directory. It may
 be necessary to edit the Makefile to specify the location of the units library.
 The configure script should automatically add flags to find HDF5.
 
-## Using the units metadata in python
+### Using the units metadata in python
 
+The examples directory also contains python scripts showing how to make use of
+the unit metadata in python.
+
+The functions in the file swift_units.py can construct astropy Quantity objects
+from HDF5 datasets with unit information attached. Astropy quantities are
+numpy arrays which contain unit information and automatically carry out
+conversions as necessary.
+
+The script read_points.py reads in the random points from the cosmology.c
+example, converts the to a different unit system and plots them.
+
+Note that for simulations run with Swift itself, it's probably better to read
+the output using [swiftsimio](https://github.com/SWIFTSIM/swiftsimio) since
+it can handle comoving units and take advantage of the cell structure in swift
+snapshots to efficiently read in sub-regions.
