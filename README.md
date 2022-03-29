@@ -184,10 +184,9 @@ The configure script should automatically add flags to find HDF5.
 The examples directory also contains python scripts showing how to make use of
 the unit metadata in python.
 
-The functions in the file swift_units.py can construct astropy Quantity objects
-from HDF5 datasets with unit information attached. Astropy quantities are
-numpy arrays which contain unit information and automatically carry out
-conversions as necessary.
+The functions in the file swift_units.py can construct unyt.unit_array objects
+from HDF5 datasets with unit information attached. These are numpy arrays which
+contain unit information and automatically carry out conversions as necessary.
 
 The script read_points.py reads in the random points from the cosmology.c
 example, converts the to a different unit system and plots them.
