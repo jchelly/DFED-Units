@@ -54,7 +54,35 @@ int main(int argc, char *argv[]) {
   units_print(&us_read);
   printf("\n");
 
+  /* Generate random points in a 100Mpc box */
+  const double boxsize = 100.0;
+  const int nr_points = 10000;
+  double *pos_mpc = malloc(3*sizeof(double)*nr_points);
+  for(int i=0; i<nr_points; i+=1) {
+    for(int j=0; j<3; j+=1) {
+      pos_mpc[3*i+j] = ((double) rand()) / RAND_MAX * boxsize;
+    }
+  }
 
+  /* Write the points to a HDF5 file */
+  h_file = H5Fcreate("cosmo_points.hdf5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  hsize_t dims[2];
+  dims[0] = nr_points;
+  dims[1] = 3;
+  hid_t h_space = H5Screate_simple(2, dims, NULL);
+  hid_t h_data = H5Dcreate2(h_file, "Coordinates", H5T_NATIVE_DOUBLE, h_space, 
+                            H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  H5Dwrite(h_data, H5T_NATIVE_DOUBLE, h_space, H5S_ALL, H5P_DEFAULT, pos_mpc);
 
+  /* Write the cosmological unit system to the file */
+  units_write_hdf5(h_file, &us_cosmo, "CosmologicalUnits");
+  
+  /* Attach unit information to the dataset */
+  units_add_to_hdf5_dataset(h_data, &us_cosmo, UNIT_CONV_LENGTH);
+
+  H5Dclose(h_data);
+  H5Sclose(h_space);
+  H5Fclose(h_file);
+  
   return 0;
 }
