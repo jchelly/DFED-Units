@@ -84,5 +84,7 @@ int main(int argc, char *argv[]) {
   H5Sclose(h_space);
   H5Fclose(h_file);
   
+  printf("Wrote file: cosmo_points.hdf5\n");
+
   return 0;
 }

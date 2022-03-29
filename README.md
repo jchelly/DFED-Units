@@ -1,8 +1,8 @@
 # SWIFT Unit Handling Library
 
-This is a C library extracted from the [SWIFT n-body simulation code]
-(www.swiftsim.com) which can be used to store, operate on and read/write
-unit information in numerical simulations.
+This is a C library extracted from the
+[SWIFT n-body simulation code](www.swiftsim.com) which can be used to store,
+operate on and read/write unit information in numerical simulations.
 
 It is assumed that the simulation code uses a consistent set of units
 internally such that, for example, velocity units are length units divided
@@ -174,8 +174,8 @@ following:
   * write a HDF5 dataset with units metadata attached
 
 The program can be compiled by running make in the examples directory. It may
-be necessary to edit the Makefile to specify the location of the units library
-and the necessary flags to link to HDF5.
+be necessary to edit the Makefile to specify the location of the units library.
+The configure script should automatically add flags to find HDF5.
 
 ## Using the units metadata in python
 

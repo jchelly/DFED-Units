@@ -72,7 +72,7 @@ AC_DEFINE_UNQUOTED([SWIFT_CONFIG_FLAGS],["$swift_config_flags"],[Flags passed to
 test -d ${srcdir}/.git && touch ${srcdir}/src/version.c
 
 # Generate output.
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile examples/Makefile)
 
 # Report general configuration.
 AC_MSG_RESULT([

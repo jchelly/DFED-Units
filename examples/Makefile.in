@@ -1,0 +1,20 @@
+.PHONY: all
+all:	cosmology
+
+clean:
+	\rm -f cosmology cosmo_points.hdf5 cosmo_units.hdf5
+
+# HDF5 compiler wrapper script
+H5CC=@H5CC@
+
+# Location where the library was installed
+SWIFT_UNITS_DIR=$(HOME)/swift_units
+
+# Flags to find the header file
+SWIFT_UNITS_INC=-I${SWIFT_UNITS_DIR}/include/
+
+# Flags to find the library
+SWIFT_UNITS_LIB=-L${SWIFT_UNITS_DIR}/lib/ -Wl,-rpath=${SWIFT_UNITS_DIR}/lib/ -lswift_units
+
+cosmology:	cosmology.c
+	$(H5CC) cosmology.c ${SWIFT_UNITS_INC} ${SWIFT_UNITS_LIB} -o cosmology
