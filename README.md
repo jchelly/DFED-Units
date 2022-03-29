@@ -164,4 +164,18 @@ metadata will be added to.
 
 ## Examples
 
+The program in examples/cosmology.c shows how to call the library to do the
+following:
+
+  * define a new system of units
+  * convert between unit systems
+  * write a unit system to a HDF5 file
+  * read a unit system back from a HDF5 file
+  * write a HDF5 dataset with units metadata attached
+
+The program can be compiled by running make in the examples directory. It may
+be necessary to edit the Makefile to specify the location of the units library
+and the necessary flags to link to HDF5.
+
 ## Using the units metadata in python
+
