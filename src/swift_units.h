@@ -180,7 +180,9 @@ void units_init_from_hdf5(hid_t h_file, struct unit_system* ic_units,
 /* Write unit information associated with a dataset */
 void units_add_to_hdf5_dataset_cosmological(hid_t h_data, const struct unit_system *us,
                                             enum unit_conversion_factor unit,
-                                            double scale_factor_exponent, double a);
-#define units_add_to_hdf5_dataset(h_data, us, unit) units_add_to_hdf5_dataset_cosmological(h_data, us, unit, 0.0, 1.0)
+                                            double scale_factor_exponent, double a,
+                                            double h_factor_exponent, double h);
+
+#define units_add_to_hdf5_dataset(h_data, us, unit) units_add_to_hdf5_dataset_cosmological(h_data, us, unit, 0.0, 1.0, 0.0, 1.0)
 
 #endif /* SWIFT_UNITS_H */

@@ -27,7 +27,7 @@
 /* Local includes. */
 #include "swift_units.h"
 #include "error.h"
-#include "version.h"
+/* #include "version.h" */
 
 /* Some standard headers. */
 #include <math.h>

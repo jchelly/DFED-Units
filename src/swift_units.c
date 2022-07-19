@@ -821,7 +821,8 @@ void units_write_hdf5(hid_t h_file, const struct unit_system* us,
 
 void units_add_to_hdf5_dataset_cosmological(hid_t h_data, const struct unit_system *us,
                                             enum unit_conversion_factor unit,
-                                            double scale_factor_exponent, double a) {
+                                            double scale_factor_exponent, double a,
+                                            double h_factor_exponent, double h) {
 
   /* Write unit conversion factors for this data set */
   char buffer[FIELD_BUFFER_SIZE] = {0};
@@ -834,7 +835,7 @@ void units_add_to_hdf5_dataset_cosmological(hid_t h_data, const struct unit_syst
   io_write_attribute_f(h_data, "U_t exponent", baseUnitsExp[UNIT_TIME]);
   io_write_attribute_f(h_data, "U_I exponent", baseUnitsExp[UNIT_CURRENT]);
   io_write_attribute_f(h_data, "U_T exponent", baseUnitsExp[UNIT_TEMPERATURE]);
-  io_write_attribute_f(h_data, "h-scale exponent", 0.f);
+  io_write_attribute_f(h_data, "h-scale exponent", h_factor_exponent);
   io_write_attribute_f(h_data, "a-scale exponent", scale_factor_exponent);
   io_write_attribute_s(h_data, "Expression for physical CGS units", buffer);
 
@@ -846,5 +847,5 @@ void units_add_to_hdf5_dataset_cosmological(hid_t h_data, const struct unit_syst
                        factor);
   io_write_attribute_d(h_data,
                        "Conversion factor to physical CGS (including cosmological corrections)",
-                       factor * pow(a, scale_factor_exponent));
+                       factor * pow(a, scale_factor_exponent) * pow(h, h_factor_exponent));
 }

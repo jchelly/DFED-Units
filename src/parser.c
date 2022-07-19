@@ -33,7 +33,7 @@
 /* Local headers. */
 #include "common_io.h"
 #include "error.h"
-#include "version.h"
+/* #include "version.h" */
 #include "tools.h"
 
 #define PARSER_COMMENT_STRING "#"
