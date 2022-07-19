@@ -1,0 +1,324 @@
+From 73db77d693cee600a9ebd5bced9220f1aa7f4d63 Mon Sep 17 00:00:00 2001
+From: John Helly <j.c.helly@durham.ac.uk>
+Date: Tue, 12 Jul 2022 11:32:51 +0100
+Subject: [PATCH 1/2] Add calls to swift_units library
+
+---
+ Makefile  |  9 ++++++---
+ allvars.c |  3 ++-
+ allvars.h |  3 +++
+ begrun.c  |  8 ++++++++
+ io.c      | 59 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 78 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 55b0547..95d2d76 100644
+--- a/Makefile
++++ b/Makefile
+@@ -10,7 +10,7 @@
+ 
+ #--------------------------------------- Basic operation mode of code
+ OPT   +=  -DPERIODIC 
+-OPT   +=  -DUNEQUALSOFTENINGS
++#OPT   +=  -DUNEQUALSOFTENINGS
+ 
+ 
+ #--------------------------------------- Things that are always recommended
+@@ -108,6 +108,9 @@ FFTW_LIBS=
+ MPICHLIB =
+ HDF5INCL =  -DH5_USE_16_API
+ HDF5LIB  =  -lhdf5 -lz 
++UNITS=/cosma/home/jch/Codes/DiRAC/Gadget-2.0.7/units/
++UNITSINCL = -I$(UNITS)/include/
++UNITSLIB = -L$(UNITS)/lib/ -Wl,-rpath=$(UNITS)/lib/ -lswift_units
+ endif
+ 
+ 
+@@ -235,7 +238,7 @@ OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
+ INCL   = allvars.h  proto.h  tags.h  Makefile
+ 
+ 
+-CFLAGS = $(OPTIONS) $(GSL_INCL) $(FFTW_INCL) $(HDF5INCL)
++CFLAGS = $(OPTIONS) $(GSL_INCL) $(FFTW_INCL) $(HDF5INCL) $(UNITSINCL)
+ 
+ 
+ ifeq (NOTYPEPREFIX_FFTW,$(findstring NOTYPEPREFIX_FFTW,$(OPT)))    # fftw installed with type prefix?
+@@ -249,7 +252,7 @@ endif
+ endif
+ 
+ 
+-LIBS   =   $(HDF5LIB) -g  $(MPICHLIB)  $(GSL_LIBS) -lgsl -lgslcblas -lm $(FFTW_LIB) 
++LIBS   =   $(HDF5LIB) -g  $(MPICHLIB)  $(GSL_LIBS) -lgsl -lgslcblas -lm $(FFTW_LIB) $(UNITSLIB)
+ 
+ $(EXEC): $(OBJS) 
+ 	$(CC) $(OBJS) $(LIBS)   -o  $(EXEC)  
+diff --git a/allvars.c b/allvars.c
+index 75e4cd7..b17d54c 100644
+--- a/allvars.c
++++ b/allvars.c
+@@ -203,4 +203,5 @@ struct hydrodata_out
+  *HydroDataResult,              /*!< stores the locally computed SPH hydro results for imported particles */
+  *HydroDataPartialResult;       /*!< imported partial SPH hydro-force results from other processors */
+ 
+-
++/* struct to store system of units information */
++struct unit_system gadget_units;
+diff --git a/allvars.h b/allvars.h
+index f5ae716..71667af 100644
+--- a/allvars.h
++++ b/allvars.h
+@@ -19,6 +19,7 @@
+ #include <stdio.h>
+ #include <gsl/gsl_rng.h>
+ #include "tags.h"
++#include "swift_units.h"
+ 
+ #define  GADGETVERSION   "2.0"   /*!< code version string */
+ 
+@@ -767,6 +768,8 @@ extern struct hydrodata_out
+  *HydroDataResult,              /*!< stores the locally computed SPH hydro results for imported particles */
+  *HydroDataPartialResult;       /*!< imported partial SPH hydro-force results from other processors */
+ 
++/* struct to store system of units information */
++extern struct unit_system gadget_units;
+ 
+ #endif
+ 
+diff --git a/begrun.c b/begrun.c
+index f4a92d9..5a44d85 100644
+--- a/begrun.c
++++ b/begrun.c
+@@ -7,6 +7,7 @@
+ #include <unistd.h>
+ #include <gsl/gsl_rng.h>
+ 
++#include "swift_units.h"
+ #include "allvars.h"
+ #include "proto.h"
+ 
+@@ -37,6 +38,13 @@ void begrun(void)
+ 
+   read_parameter_file(ParameterFile);	/* ... read in parameters for this run */
+ 
++  double U_M_in_cgs = All.UnitMass_in_g;
++  double U_L_in_cgs = All.UnitLength_in_cm;
++  double U_t_in_cgs = All.UnitLength_in_cm / All.UnitVelocity_in_cm_per_s;
++  double U_C_in_cgs = 1.0;
++  double U_T_in_cgs = 1.0;
++  units_init(&gadget_units, U_M_in_cgs, U_L_in_cgs, U_t_in_cgs, U_C_in_cgs, U_T_in_cgs);
++  
+   allocate_commbuffers();	/* ... allocate buffer-memory for particle 
+ 				   exchange during force computation */
+   set_units();
+diff --git a/io.c b/io.c
+index 314527c..31d1d86 100644
+--- a/io.c
++++ b/io.c
+@@ -9,6 +9,7 @@
+ #include <hdf5.h>
+ #endif
+ 
++#include "swift_units.h"
+ #include "allvars.h"
+ #include "proto.h"
+ 
+@@ -398,6 +399,55 @@ int get_bytes_per_blockelement(enum iofields blocknr)
+ }
+ 
+ 
++/*! This function tells the size of one data entry in each of the blocks
++ *  defined for the output file. If one wants to add a new output-block, this
++ *  function should be augmented accordingly.
++ */
++int get_units_of_block(enum iofields blocknr)
++{
++  enum unit_conversion_factor unit;
++  switch (blocknr)
++    {
++    case IO_POS:
++      unit = UNIT_CONV_LENGTH;
++      break;
++    case IO_VEL:
++      unit = UNIT_CONV_VELOCITY;
++      break;
++    case IO_ACCEL:
++      unit = UNIT_CONV_ACCELERATION;
++      break;
++    case IO_ID:
++      unit = UNIT_CONV_NO_UNITS;
++      break;
++    case IO_MASS:
++      unit = UNIT_CONV_MASS;
++      break;
++    case IO_U:
++      unit = UNIT_CONV_ENERGY_PER_UNIT_MASS;
++      break;
++    case IO_RHO:
++      unit = UNIT_CONV_DENSITY;
++      break;
++    case IO_HSML:
++      unit = UNIT_CONV_LENGTH;      
++      break;
++    case IO_POT:
++      unit = UNIT_CONV_ENERGY_PER_UNIT_MASS;
++      break;
++    case IO_DTENTR:
++    case IO_TSTP:
++      printf("Not implemented");
++      exit(1);
++      break;
++    }
++
++  return unit;
++}
++
++
++
++
+ /*! This function returns the type of the data contained in a given block of
+  *  the output file. If one wants to add a new output-block, this function
+  *  should be augmented accordingly.
+@@ -783,6 +833,10 @@ void write_file(char *fname, int writeTask, int lastTask)
+ 	    }
+ 
+ 	  write_header_attributes_in_hdf5(hdf5_headergrp);
++
++          /* Write system of units */
++          units_write_hdf5(hdf5_file, &gadget_units, "Units");
++
+ #endif
+ 	}
+       else
+@@ -878,6 +932,11 @@ void write_file(char *fname, int writeTask, int lastTask)
+ 			  hdf5_dataset =
+ 			    H5Dcreate(hdf5_grp[type], buf, hdf5_datatype, hdf5_dataspace_in_file,
+ 				      H5P_DEFAULT);
++
++                          /* Add units information to this dataset */
++                          enum unit_conversion_factor unit = get_units_of_block(blocknr);
++                          units_add_to_hdf5_dataset(hdf5_dataset, &gadget_units, unit);
++                          
+ 			  pcsum = 0;
+ 			}
+ #endif
+-- 
+1.8.3.1
+
+
+From 64370827d85c5a1947789a28576953513e8897ff Mon Sep 17 00:00:00 2001
+From: John Helly <j.c.helly@durham.ac.uk>
+Date: Tue, 19 Jul 2022 15:22:52 +0100
+Subject: [PATCH 2/2] Also write a and h factors to snapshots
+
+---
+ io.c | 85 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 84 insertions(+), 1 deletion(-)
+
+diff --git a/io.c b/io.c
+index 31d1d86..be3f7b0 100644
+--- a/io.c
++++ b/io.c
+@@ -445,8 +445,85 @@ int get_units_of_block(enum iofields blocknr)
+   return unit;
+ }
+ 
++double get_h_exponent_of_block(enum iofields blocknr)
++{
++  double h_exponent = 0.0;
++  switch (blocknr)
++    {
++    case IO_POS:
++      h_exponent = -1.0;
++      break;
++    case IO_VEL:
++      h_exponent = 0.0;
++      break;
++    case IO_ID:
++      h_exponent = 0.0;
++      break;
++    case IO_MASS:
++      h_exponent = -1.0;
++      break;
++    case IO_U:
++      h_exponent = 0.0;
++      break;
++    case IO_RHO:
++      h_exponent = 2.0;
++      break;
++    case IO_HSML:
++      h_exponent = -1.0;
++      break;
++    case IO_POT:
++      h_exponent = 0.0;
++      break;
++    case IO_ACCEL:
++    case IO_DTENTR:
++    case IO_TSTP:
++      printf("Not implemented");
++      exit(1);
++      break;
++    }
+ 
++  return h_exponent;
++}
+ 
++double get_a_exponent_of_block(enum iofields blocknr)
++{
++  double a_exponent = 0.0;
++  switch (blocknr)
++    {
++    case IO_POS:
++      a_exponent = 1.0;
++      break;
++    case IO_VEL:
++      a_exponent = 0.5;
++      break;
++    case IO_ID:
++      a_exponent = 0.0;
++      break;
++    case IO_MASS:
++      a_exponent = 0.0;
++      break;
++    case IO_U:
++      a_exponent = 0.0;
++      break;
++    case IO_RHO:
++      a_exponent = -3.0;
++      break;
++    case IO_HSML:
++      a_exponent = 1.0;
++      break;
++    case IO_POT:
++      a_exponent = 0.0;
++      break;
++    case IO_DTENTR:
++    case IO_TSTP:
++    case IO_ACCEL:
++      printf("Not implemented");
++      exit(1);
++      break;
++    }
++
++  return a_exponent;
++}
+ 
+ /*! This function returns the type of the data contained in a given block of
+  *  the output file. If one wants to add a new output-block, this function
+@@ -935,7 +1012,13 @@ void write_file(char *fname, int writeTask, int lastTask)
+ 
+                           /* Add units information to this dataset */
+                           enum unit_conversion_factor unit = get_units_of_block(blocknr);
+-                          units_add_to_hdf5_dataset(hdf5_dataset, &gadget_units, unit);
++                          double scale_factor_exponent = get_a_exponent_of_block(blocknr);
++                          double scale_factor = All.Time;
++                          double h_factor_exponent = get_h_exponent_of_block(blocknr);
++                          double h_factor = All.HubbleParam;                       
++                          units_add_to_hdf5_dataset_cosmological(hdf5_dataset, &gadget_units, unit,
++                                                                 scale_factor_exponent, scale_factor,
++                                                                 h_factor_exponent, h_factor);
+                           
+ 			  pcsum = 0;
+ 			}
+-- 
+1.8.3.1
+
